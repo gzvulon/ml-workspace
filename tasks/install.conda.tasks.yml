@@ -67,3 +67,9 @@ tasks:
     cmds:
       - echo "PATH=$CONDA_DIR/bin:$PATH"
       - echo "LD_LIBRARY_PATH=$CONDA_DIR/lib" 
+
+  show:export:path:
+    desc: _
+    cmds:
+      - echo "export PATH=$CONDA_DIR/bin:$PATH"
+    silent: yes
