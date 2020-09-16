@@ -1,0 +1,69 @@
+
+version: '3'
+### RUNTIMES ###
+# Install Miniconda: https://repo.continuum.io/miniconda/
+
+vars: &_vars_
+  MINICONDA_VERSION: 4.8.3
+  MINICONDA_MD5: 751786b92c00b1aeae3f017b781018df
+  CONDA_VERSION: 4.8.3
+  CONDA_DIR_PARENT: /opt/user
+  CONDA_DIR: /opt/user/conda
+  PYTHON_VERSION: "3.7.7"
+  CONDA_PYTHON_DIR: /opt/user/conda/lib/python3.7
+
+env: *_vars_
+
+vars:docker:
+  refs:
+    - vars
+tasks:
+
+  prepare:condadir:
+    desc: _
+    cmds:
+      - |
+        sudo mkdir -p ${CONDA_DIR_PARENT} \
+        && sudo chmod 777 ${CONDA_DIR_PARENT} \
+        && sudo chown $USER ${CONDA_DIR_PARENT}
+        
+        # echo "${MINICONDA_MD5} ~/miniconda.sh" | md5sum -c - && \
+
+  install:conda:
+    desc: _
+    docker: RUN
+    cmds:
+      - |
+        wget https://repo.anaconda.com/miniconda/Miniconda3-py37_${CONDA_VERSION}-Linux-x86_64.sh -O ~/miniconda.sh && \
+        /bin/bash ~/miniconda.sh -b -p $CONDA_DIR && \
+        export PATH=$CONDA_DIR/bin:$PATH && \
+        rm ~/miniconda.sh && \
+        # Update conda
+        $CONDA_DIR/bin/conda update -y -n base -c defaults conda && \
+        $CONDA_DIR/bin/conda update -y setuptools && \
+        $CONDA_DIR/bin/conda install -y conda-build && \
+        # Add conda forge - Append so that conda forge has lower priority than the main channel
+        $CONDA_DIR/bin/conda config --system --append channels conda-forge && \
+        $CONDA_DIR/bin/conda config --system --set auto_update_conda false && \
+        $CONDA_DIR/bin/conda config --system --set show_channel_urls true && \
+        # Update selected packages - install python 3.7.x
+        $CONDA_DIR/bin/conda install -y --update-all python=$PYTHON_VERSION && \
+        # Update pip
+        $CONDA_DIR/bin/pip install --upgrade pip && \
+        $CONDA_DIR/bin/conda clean -y --packages && \
+        $CONDA_DIR/bin/conda clean -y -a -f  && \
+        $CONDA_DIR/bin/conda build purge-all
+
+  link:conda:
+    desc: "# Link Conda"
+    cmds:
+      - |
+        sudo ln -s $CONDA_DIR/bin/python /usr/local/bin/python && \
+        sudo ln -s $CONDA_DIR/bin/conda /usr/bin/conda && \
+        chmod -R a+rwx /usr/local/bin/ 
+  set:path:
+    desc: _
+    docker: ENV
+    cmds:
+      - echo "PATH=$CONDA_DIR/bin:$PATH"
+      - echo "LD_LIBRARY_PATH=$CONDA_DIR/lib" 
