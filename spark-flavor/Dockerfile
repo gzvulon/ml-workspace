@@ -1,6 +1,7 @@
 ARG ARG_WORKSPACE_VERSION="latest"
 # Build from full flavor of workspace with same version
-FROM dagshub/ml-workspace-r:$ARG_WORKSPACE_VERSION
+# FROM dagshub/ml-workspace-r:$ARG_WORKSPACE_VERSION
+FROM ml-workspace:$ARG_WORKSPACE_VERSION
 
 ARG ARG_WORKSPACE_FLAVOR="spark"
 ENV WORKSPACE_FLAVOR=$ARG_WORKSPACE_FLAVOR

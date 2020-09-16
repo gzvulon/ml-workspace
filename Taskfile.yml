@@ -1,0 +1,19 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - echo "{{.GREETING}}"
+    silent: true
+
+  docker:build-spark:
+    desc: Build spark flavor
+    todo: replace build.py by tasker
+    cmds:
+      - python build.py --flavor spark
+
